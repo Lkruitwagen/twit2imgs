@@ -7,11 +7,18 @@ import click
 import yaml
 from dateutil import parser
 from loguru import logger
+from dotmap import DotMap
 
 from twit2imgs import utils
 
 logger.remove()
 logger.add(sys.stdout, colorize=False, format="{time:YYYYMMDDHHmmss}|{level}|{message}")
+
+def parse_cfg(cfg: dict) -> dict:
+    
+    cfg = utils.walk_dict(cfg, utils.maybe_parse_environ)
+
+    return DotMap(cfg)
 
 
 @click.group()
