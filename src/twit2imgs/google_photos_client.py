@@ -4,6 +4,7 @@ from google.oauth2.credentials import Credentials
 import json
 import os.path
 import argparse
+from dotmap import DotMap
 import logging
 from PIL import Image
 from typing import List, Optional, Union
@@ -13,8 +14,10 @@ from abc import ABC
 
 def save_cred(cred, auth_file):
     
-    if not isinstance(cred, dict):
-
+    
+    
+    if isinstance(cred, DotMap):
+        
         cred_dict = {
             'token': cred.token,
             'refresh_token': cred.refresh_token,
@@ -39,8 +42,8 @@ class GooglePhotosClient(ABC):
         self, 
         scopes: List[str],
         scoped_credentials_file: str,
-        client_params: dict
-        client_file: Optional[str],
+        client_params: dict,
+        client_file: Optional[str] = None,
     ):
         self.scopes = scopes
         
@@ -84,6 +87,9 @@ class GooglePhotosClient(ABC):
                 logging.debug("Error opening auth token file - {0}".format(err))
             except ValueError:
                 logging.debug("Error loading auth tokens - Incorrect format")
+            except Exception as e:
+                print ('ERROR')
+                print (e)
                 
             if not cred:
                 cred = self._auth()
@@ -136,7 +142,6 @@ class GooglePhotosClient(ABC):
         }
         
         # loop content
-        
         while True:     
         
             resp = self.session.post('https://photoslibrary.googleapis.com/v1/mediaItems:search', params).json()
@@ -249,8 +254,8 @@ if __name__ == "__main__":
         'https://www.googleapis.com/auth/photoslibrary',
         'https://www.googleapis.com/auth/photoslibrary.sharing'
     ]
-    scoped_credentials_file = './auth_creds.json'
-    client_file = '/home/lucas/Downloads/credentials.json'
+    scoped_credentials_file = './auth_creds_v3.json'
+    client_file = None
     imgs = [Image.open('./notebooks/demo.png')]
     
     client = GooglePhotosClient(
@@ -259,8 +264,8 @@ if __name__ == "__main__":
         scoped_credentials_file=scoped_credentials_file,
     )
     
-    album_id = client.create_album('beautiful-s2-prod')
-    #album_id = client._get_album_id('beautiful-s2-prod')
-    client.clear_album('beautiful-s2-prod')
-    client.upload_images(album_id,imgs)
+    # album_id = client.create_album('beautiful-s2-prod')
+    # album_id = client._get_album_id('beautiful-s2-prod')
+    # client.clear_album('beautiful-s2-prod')
+    # client.upload_images(album_id,imgs)
     
