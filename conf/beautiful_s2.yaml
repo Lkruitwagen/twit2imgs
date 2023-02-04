@@ -1,0 +1,36 @@
+scraper:
+  cls: twit2imgs.scraper.UserScraper
+  params:
+    TWITTER_API_BEARER_TOKEN: ENVIRON(TWITTER_API_BEARER_TOKEN)
+    user_id: 782268722006425600
+    tweet_fields:
+      - attachments
+      - created_at
+    max_results: 24
+    url_parser: twit2imgs.image_utils.format_s2_url
+storer:
+  cls: twit2imgs.storer.GCPStore
+  params:
+    bucket: beautiful-s2
+    record_prefix: records
+    image_prefix: images
+targets:
+  GooglePhotos:
+    cls: twit2imgs.target.GooglePhotosTarget
+    params:
+      album_name: beautiful-s2-prod
+      client_params:
+        scopes: 
+          - https://www.googleapis.com/auth/photoslibrary
+          - https://www.googleapis.com/auth/photoslibrary.sharing
+        scoped_credentials_file: auth_creds.json
+        client_params:
+          token: ENVIRON(TOKEN)
+          refresh_token: ENVIRON(REFRESH_TOKEN)
+          id_token: ENVIRON(ID_TOKEN)
+          scopes:
+            - https://www.googleapis.com/auth/photoslibrary
+            - https://www.googleapis.com/auth/photoslibrary.sharing
+          token_uri: ENVIRON(TOKEN_URI)
+          client_id: ENVIRON(CLIENT_ID)
+          client_secret: ENVIRON(CLIENT_SECRET)
