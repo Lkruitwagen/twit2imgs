@@ -1,7 +1,10 @@
 import tweepy
+import json
 from PIL import Image
 import requests
 from io import BytesIO
+
+from abc import ABC
 
 class Tweet(ABC):
     def __init__(self, ttweet, img_urls):
@@ -10,7 +13,7 @@ class Tweet(ABC):
         self.image_url: str = img_urls[ttweet.attachments['media_keys'][0]]
         self.ttweet: tweepy.tweet.Tweet = ttweet
         
-        r = requests.get(self.image_url)
+        r = requests.get(self.image_url, timeout=20)
         r.raise_for_status()
         
         self.image = Image.open(BytesIO(r.content))
