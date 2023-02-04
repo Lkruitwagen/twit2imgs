@@ -36,24 +36,24 @@ def DAG(conf_path):
     # parse config
     logger.info('parsing config')
     cfg = yaml.load(open(f"conf/{conf_path}.yaml"), Loader=yaml.SafeLoader)
-    cfg = utils.parse_cfg(cfg)
+    cfg = parse_cfg(cfg)
     
     # scrape tweets
     logger.info('scraping tweets')
-    scraper = utils._indirect_cls(cfg.scraper.cls)(cfg)
+    scraper = utils._indirect_cls(cfg.scraper.cls)(**cfg.scraper.params)
     tweets = scraper.scrape()
     logger.info(f'Got {len(tweets)} tweets')
     
     # store tweet records and images to cloud
     logger.info('storing tweets')
-    storer = utils._indirect_cls(cfg.storer.cls)(cfg)
+    storer = utils._indirect_cls(cfg.storer.cls)(**cfg.storer.params)
     if storer is not None:
         storer.store(tweets)
         
     # for each target: preprocess, post_tweets, postprocess
     for target_key, target_params in cfg.targets.items():
-        logger.info(f'updating album: {target_key}')
-        target = utils._indirect_cls(target_params.cls)(target_params)
+        logger.info(f'updating target: {target_key}')
+        target = utils._indirect_cls(target_params.cls)(**target_params.params)
         target.preprocess()
         target.post_tweets(tweets)
         target.postprocess()
