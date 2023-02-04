@@ -1,6 +1,7 @@
 import importlib
 import io
 import json
+import os
 import re
 import functools
 from datetime import datetime, timedelta  # noqa
@@ -33,13 +34,14 @@ def recursive_keys(keys, dictionary):
             yield from recursive_keys(keys+[key],value)
         else:
             yield keys +[key]
-    
 
 def maybe_parse_environ(v):
     if isinstance(v, str):
         if 'ENVIRON' in v:
             g = re.search('\(.*\)',v)
-            return os.environ.get(v[g.start()+1:v.end()-1],None)
+            return os.environ.get(v[g.start()+1:g.end()-1],None)
+        else:
+            return v
     else:
         return v
     
