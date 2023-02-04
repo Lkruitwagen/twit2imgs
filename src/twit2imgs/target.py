@@ -20,8 +20,8 @@ class Target(ABC):
 class GooglePhotosTarget(Target):
     
     def __init__(self, album_name, client_params):
-        self.client = GooglePhotosClient
-        self.album_id = self.client._get_album_id(<EMWO)
+        self.client = GooglePhotosClient(**client_params)
+        self.album_id = self.client._get_album_id(album_name)
     
     def preprocess(self):
         # clear the google bucket
