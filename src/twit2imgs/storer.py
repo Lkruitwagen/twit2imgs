@@ -1,4 +1,7 @@
-from twit2imgs import utils
+from abc import ABC
+from typing import List
+
+from twit2imgs import utils, models
 
 class Storer(ABC):
     
@@ -7,10 +10,10 @@ class Storer(ABC):
     
 class GCPStore(Storer):
     
-    def __init__(self, bucket):
+    def __init__(self, bucket, record_prefix, image_prefix):
         self.bucket = bucket
         self.record_prefix = record_prefix
-        self.img_prefix = img_prefix
+        self.img_prefix = image_prefix
         
         
     def store(self, tweets: List[models.Tweet]) -> bool:
