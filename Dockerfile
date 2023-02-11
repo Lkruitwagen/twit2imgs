@@ -10,6 +10,9 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
 
+RUN mkdir -p /usr/share/fonts/truetype/freefont
+RUN install -m644 FreeMonoBold.ttf /usr/share/fonts/truetype/freefont
+
 # Install production dependencies.
 RUN pip install --no-cache-dir .
 
