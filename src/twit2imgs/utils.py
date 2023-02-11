@@ -1,13 +1,12 @@
+import functools
 import importlib
 import io
 import json
 import os
 import re
-import functools
 from datetime import datetime, timedelta  # noqa
 from typing import Dict
 
-from dotmap import DotMap
 from google.cloud import storage
 
 
@@ -17,42 +16,47 @@ def _indirect_cls(path):
     _cls = getattr(mod, _cls_name)
     return _cls
 
+
 def rsetattr(obj, attrs, val):
     pre = attrs[0:-1]
     post = attrs[-1]
-    (rgetattr(obj, pre) if pre else obj)[post]=val
+    (rgetattr(obj, pre) if pre else obj)[post] = val
     return None
+
 
 def rgetattr(obj, attrs, *args):
     def _getattr(obj, attr):
         return obj.get(attr)
+
     return functools.reduce(_getattr, [obj] + attrs)
+
 
 def recursive_keys(keys, dictionary):
     for key, value in dictionary.items():
         if isinstance(value, dict):
-            yield from recursive_keys(keys+[key],value)
+            yield from recursive_keys(keys + [key], value)
         else:
-            yield keys +[key]
+            yield keys + [key]
+
 
 def maybe_parse_environ(v):
     if isinstance(v, str):
-        if 'ENVIRON' in v:
-            g = re.search('\(.*\)',v)
-            return os.environ.get(v[g.start()+1:g.end()-1],None)
+        if "ENVIRON" in v:
+            g = re.search(r"\(.*\)", v)
+            return os.environ.get(v[g.start() + 1 : g.end() - 1], None)  # noqa
         else:
             return v
     else:
         return v
-    
+
+
 def walk_dict(d, f):
-    
-    list_of_keys = recursive_keys([],d)
-    
+    list_of_keys = recursive_keys([], d)
+
     for sublist in list_of_keys:
         val = rgetattr(d, sublist)
         rsetattr(d, sublist, f(val))
-    
+
     return d
 
 

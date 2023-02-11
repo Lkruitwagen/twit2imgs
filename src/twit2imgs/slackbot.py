@@ -1,5 +1,4 @@
 import json
-import os
 
 import requests
 
@@ -10,8 +9,7 @@ class SlackBot:
         self.channel = channel
         self.name = name
 
-    def post(self, message:dict):
-
+    def post(self, message: dict):
         data = {
             "token": self.token,
             "channel": self.channel,
