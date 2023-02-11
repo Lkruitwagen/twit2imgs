@@ -1,7 +1,6 @@
 import json
 import logging
 import os.path
-from abc import ABC
 from typing import List, Optional, Union
 
 from dotmap import DotMap
@@ -148,11 +147,11 @@ class GooglePhotosClient:
         body = {"mediaItemIds": [item["id"] for item in media_items]}
 
         resp = self.session.post(
-            f"https://photoslibrary.googleapis.com/v1/albums/{album_id}:batchRemoveMediaItems", # noqa
+            f"https://photoslibrary.googleapis.com/v1/albums/{album_id}:batchRemoveMediaItems",  # noqa
             body,
         )
 
-        return 1
+        return resp.status_code
 
     def create_album(self, album_name):
         create_album_body = json.dumps({"album": {"title": album_name}})
@@ -231,12 +230,12 @@ class GooglePhotosClient:
                         )
                 else:
                     logging.error(
-                        f"Could not add '{os.path.basename(fname)}' to library. Server Response -- {resp}" # noqaq
+                        f"Could not add '{os.path.basename(fname)}' to library. Server Response -- {resp}"  # noqaq
                     )
 
             else:
                 logging.error(
-                    f"Could not upload '{os.path.basename(fname)}'. Server Response - {upload_token}" # noqa
+                    f"Could not upload '{os.path.basename(fname)}'. Server Response - {upload_token}"  # noqa
                 )
 
         try:

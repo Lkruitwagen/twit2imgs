@@ -21,7 +21,7 @@ def beautiful_s2_to_16_9_labelled(im: Image, txt: str) -> Image:
     match_latlon = re.search(r"\(.*\)", txt)
 
     top_line = txt[: match_latlon.start()]
-    bottom_line = txt[match_latlon.start():match_date.end()].replace(",", "") # noqa
+    bottom_line = txt[match_latlon.start() : match_date.end()].replace(",", "")  # noqa
 
     # draw a semi-opaque box to hold our annotations.
     # set the width of the box based on the length of our text annotations.
