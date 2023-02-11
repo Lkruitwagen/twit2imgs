@@ -20,7 +20,7 @@ targets:
     params:
       album_name: beautiful-s2-prod
       client_params:
-        scopes: 
+        scopes:
           - https://www.googleapis.com/auth/photoslibrary
           - https://www.googleapis.com/auth/photoslibrary.sharing
         scoped_credentials_file: auth_creds.json
