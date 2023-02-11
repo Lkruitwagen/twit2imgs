@@ -43,43 +43,50 @@ def DAG(conf_path):
     
     msg = {}
     
-    # parse config
-    logger.info('parsing config')
-    cfg = yaml.load(open(f"conf/{conf_path}.yaml"), Loader=yaml.SafeLoader)
-    cfg = parse_cfg(cfg)
+    # run the DAG, optionally logging errors to Slack
+    try:
     
-    # scrape tweets
-    logger.info('scraping tweets')
-    scraper = utils._indirect_cls(cfg.scraper.cls)(**cfg.scraper.params)
-    tweets = scraper.scrape()
-    logger.info(f'Got {len(tweets)} tweets')
-    msg['scraped_tweets']=len(tweets)
+        # parse config
+        logger.info('parsing config')
+        cfg = yaml.load(open(f"conf/{conf_path}.yaml"), Loader=yaml.SafeLoader)
+        cfg = parse_cfg(cfg)
+
+        # scrape tweets
+        logger.info('scraping tweets')
+        scraper = utils._indirect_cls(cfg.scraper.cls)(**cfg.scraper.params)
+        tweets = scraper.scrape()
+        logger.info(f'Got {len(tweets)} tweets')
+        msg['scraped_tweets']=len(tweets)
+
+        # store tweet records and images to cloud
+        logger.info('storing tweets')
+        storer = utils._indirect_cls(cfg.storer.cls)(**cfg.storer.params)
+        if storer is not None:
+            storer.store(tweets)
+            msg['storer'] = cfg.storer.cls.split('.')[-1]
+
+        # for each target: preprocess, post_tweets, postprocess
+        msg['targets'] = []
+        for target_key, target_params in cfg.targets.items():
+            logger.info(f'updating target: {target_key}')
+            target = utils._indirect_cls(target_params.cls)(**target_params.params)
+            target.preprocess()
+            target.post_tweets(tweets)
+            target.postprocess()
+            msg['targets'].append(target_key)
+
+        # cleanup
+        shutil.rmtree("tmp/")
+        os.makedirs("tmp/")
+
+        if slackbot is not None:
+            slackbot.post(msg)
+    except Exception as e:
+        if slackbot is not None:
+            msg = {'ERROR':repr(e),'MESSAGE':str(e)}
+            slackbot.post(msg)
+        raise e
     
-    # store tweet records and images to cloud
-    logger.info('storing tweets')
-    storer = utils._indirect_cls(cfg.storer.cls)(**cfg.storer.params)
-    if storer is not None:
-        storer.store(tweets)
-        msg['storer'] = cfg.storer.cls.split('.')[-1]
-        
-    # for each target: preprocess, post_tweets, postprocess
-    msg['targets'] = []
-    for target_key, target_params in cfg.targets.items():
-        logger.info(f'updating target: {target_key}')
-        target = utils._indirect_cls(target_params.cls)(**target_params.params)
-        target.preprocess()
-        target.post_tweets(tweets)
-        target.postprocess()
-        msg['targets'].append(target_key)
-        
-    # cleanup
-    shutil.rmtree("tmp/")
-    os.makedirs("tmp/")
-    
-    if slackbot is not None:
-        slackbot.post(msg)
-    
-        
     return 200
 
 if __name__ == "__main__":

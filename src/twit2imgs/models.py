@@ -13,7 +13,7 @@ class Tweet(ABC):
         self.image_url: str = img_urls[ttweet.attachments['media_keys'][0]]
         self.ttweet: tweepy.tweet.Tweet = ttweet
         
-        r = requests.get(self.image_url, timeout=20)
+        r = requests.get(self.image_url, timeout=60)
         r.raise_for_status()
         
         self.image = Image.open(BytesIO(r.content))
