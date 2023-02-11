@@ -40,6 +40,8 @@ main:
                         TOKEN_URI: https://oauth2.googleapis.com/token
                         CLIENT_ID: <your-google-app-client-id>
                         CLIENT_SECRET: <your-google-app-client-secret>
+                        SLACKBOT_TOKEN: <your-optional-slackbot-token>
+                        SLACKBOT_CHANNEL: <your-optional-slack-channel>
                 volumes: []
               taskCount: 1
               parallelism: 1
